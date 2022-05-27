@@ -1,0 +1,49 @@
+-module(letter_count).
+-behaviour(gen_server).
+
+%% API
+-export([start/1, stop/1, start_link/1]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+-define(SERVER, ?MODULE).
+start(Name) ->
+    _sup:start_child(Name).
+
+stop(Name) ->
+    gen_server:call(Name, stop).
+
+for(X,Y) -> gen_server:call(?MODULE, {binomial,X,Y}).
+
+start_link(Name) ->
+    gen_server:start_link({local, Name}, ?MODULE, [], []).
+
+init(_Args) ->
+    {ok, #state{dummy=1}}.
+
+handle_call({binomial,X,Y}, _From, State) ->
+    {reply,
+        binomial_helper(X,Y),
+        State};
+
+handle_call(stop, _From, State) ->
+    {stop, normal, stopped, State};
+
+handle_call(_Request, _From, State) ->
+    {reply, ok, State}.
+
+handle_cast(_Msg, State) ->
+    {noreply, State}.
+
+handle_info(_Info, State) ->
+    {noreply, State}.
+
+terminate(_Reason, _State) ->
+    ok.
+
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
+
+binomial_helper(X,Y) ->
+    X_minus_Y_fac = factorial:for(X-Y),
+    X_fac = factorial:for(X),
+    Y_fac = factorial:for(Y),
+    X_fac div (Y_fac*X_minus_Y_fac).
