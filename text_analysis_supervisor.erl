@@ -14,13 +14,11 @@ start_in_shell_for_testing() ->
     {ok, Pid} = supervisor:start_link({local, ?MODULE}, ?MODULE, _Arg = []),
     unlink(Pid).
 
-start_link() ->
+start_link(_Arg) ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init(_Args) ->
-    Services = [{div_it, divide}, {add_it, add},
-                {mult_it, product}, {perm_it, permutation},
-                {fact_it, factorial}, {binom_it, binomial}],
+    Services = [{lcount, letter_count}, {wcount, word_count}, {perm_it, permutation}],
 
     {ok, 
         {
